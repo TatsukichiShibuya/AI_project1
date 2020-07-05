@@ -1,6 +1,6 @@
 class Environment:
-    def __init__(self):
-        pass
+    def __init__(self, initial):
+        self.board = initial
 
     def value(self, board):
         pass
