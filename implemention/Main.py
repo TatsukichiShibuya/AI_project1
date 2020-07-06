@@ -1,18 +1,21 @@
 from Environment import Environment
 from Model import searchModel1, searchModel2
 import argparse
+import pprint
 
 
 def main(**kwargs):
-    env = Environment(kwargs['initial'])
+    env = Environment(kwargs['setting'])
     if(kwargs['model'] == '1'):
         model = searchModel1(env)
     elif(kwargs['model'] == '2'):
         model = searchModel2(env)
     else:
         print('No model like '+kwargs['model'])
+        return
     best = model.search(kwargs['executiontime'])
-    print(best)
+    print("最終配列")
+    pprint.pprint(best)
 
 
 if(__name__ == '__main__'):
@@ -24,8 +27,8 @@ if(__name__ == '__main__'):
         '-t', '--executiontime', type=int
     )
     parser.add_argument(
-        '-i', '--initial', type=str,
-        help='randomとかで指定'
+        '-s', '--setting', type=str, nargs='+',
+        help='h(>=3) w(>=11) mode(=randomとか)で指定'
     )
     FLAGS = vars(parser.parse_args())
     main(**FLAGS)

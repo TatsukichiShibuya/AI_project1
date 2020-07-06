@@ -6,10 +6,10 @@ class searchModel1:
         self.env = env
 
     def search(self, executiontime):
-        etime = executiontime*1000
+        etime = executiontime
         start = time.time()
         now = start
-        while(now-start > etime):
+        while(now-start < etime):
             now = time.time()
         best = self.env.board
         return best
