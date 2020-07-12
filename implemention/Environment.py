@@ -7,7 +7,7 @@ import os
 
 class Environment:
 
-    def __init__(self, setting):
+    def __init__(self, initial):
         self.count = 1  # デバッグ用
 
         # qwerty配列
@@ -18,7 +18,7 @@ class Environment:
 
         # 初期化用の配列作成
         self.board = np.zeros((3, 11), dtype=np.uint8)
-        self.initializeBoard(setting[0])
+        self.initializeBoard(initial)
         print("初期配列")
         pprint.pprint(self.board)
 
@@ -42,10 +42,10 @@ class Environment:
     def initializeBoard(self,  initial):
 
         # 初期化の種類
-        if(initial == 'random'):
+        if initial == 'random':
             key = random.sample(list(np.arange(0, 33)), 33)
 
-        elif(initial == 'qwerty'):
+        elif initial == 'qwerty':
             key = np.reshape(self.qwerty, (33,))
 
         else:
@@ -59,14 +59,16 @@ class Environment:
 
     def score(self, board_map, num):  # スコア関数(勾配降下用、単語の連続した文字の距離の和)
         score = 0
-        if(num == 1):
+        if num == 1:
             for i in range(1, len(self.line)):
                 a, b = self.table[ord(self.line[i])],\
                     self.table[ord(self.line[i-1])]
                 score += abs(board_map[a, 0]-board_map[b, 0])**2
                 score += abs(board_map[a, 1]-board_map[b, 1])**2
             score /= len(self.line)
-        elif(num == 2):  # デバッグ用
+        elif num == 2:
+            pass
+        elif num == 3:  # デバッグ用
             self.score += 1
             score = self.score
         return score
@@ -77,11 +79,11 @@ class Environment:
             bx = by = qx = qy = 0
             for i in range(3):
                 for j in range(11):
-                    if(board[i, j] == val):
+                    if board[i, j] == val:
                         bx, by = i, j
             for i in range(3):
                 for j in range(11):
-                    if(self.qwerty[i, j] == val):
+                    if self.qwerty[i, j] == val:
                         qx, qy = i, j
             score -= (abs(qx-bx)**2+abs(qy-by)**2)
         return score
