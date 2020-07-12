@@ -2,6 +2,7 @@ import numpy as np
 import time
 import random
 import copy
+import pprint
 
 
 def swap_board(board, board_map,  ij, ij_):
@@ -39,8 +40,8 @@ class SimulatedAnnealing:
         prob = 1/np.exp(dif_score/self.t(time, etime, temp_num))
         return prob
 
-    def search(self, executiontime, score_num, temp_num):
-        etime = executiontime  # 実行時間(この時間回す)
+    def search(self, exec_time, score_num, temp_num):
+        etime = exec_time  # 実行時間(この時間回す)
         start = time.time()
         now = start
 
@@ -118,67 +119,95 @@ class MountainClimbing:
     def __init__(self, env):
         self.env = env
 
-    def search(self, executiontime, score_num, exec_num):
-        etime = executiontime  # 実行限界時間(この時間内で打ち切る)
+    def search(self, exec_time, score_num, exec_num):
+        etime = exec_time  # 実行限界時間(この時間内で打ち切る)
         start = time.time()
         now = start
 
-        # current_score:whileの各回でのはじめのスコア
-        current_board = self.env.board.copy()
-        current_map = board2map(current_board)
-        current_score = self.env.score(current_map, score_num)
+        # 全ての回中最高のスコア
+        best_board = self.env.board.copy()
+        best_map = board2map(best_board)
+        best_score = self.env.score(best_map, score_num)
 
-        count = 0
+        count_sum = 0
 
-        while(now-start < etime):
-            count += 1
+        for k in range(exec_num):
 
-            swap_list = []
-            # max_score:各スワップで最も良いスコア(はじめはcurrent_score)
-            max_score = current_score
-            for i in range(3):
-                for j in range(10):
-                    # 横のスワップ([i,j]<->[i,j+1])
-                    swap_board(current_board, current_map, [i, j], [i, j+1])
+            count = 0
+            current_board = self.env.board.copy()
+            current_map = board2map(current_board)
+            current_score = self.env.score(current_map, score_num)
+            print("探索"+str(k+1)+"回目")
+            pprint.pprint(current_board)
 
-                    score = self.env.score(current_map, score_num)
-                    if score > max_score:
-                        swap_list = [[[i, j], [i, j+1]]]
-                        max_score = score
-                    elif score == max_score:
-                        swap_list.append([[i, j], [i, j+1]])
+            while(now-start < etime):
+                count += 1
 
-                    swap_board(current_board, current_map, [i, j], [i, j+1])
+                swap_list = []
+                # max_score:各スワップで最も良いスコア(はじめはcurrent_score)
+                max_score = current_score
+                for i in range(3):
+                    for j in range(10):
+                        # 横のスワップ([i,j]<->[i,j+1])
+                        swap_board(current_board, current_map,
+                                   [i, j], [i, j+1])
 
-            for i in range(2):
-                for j in range(11):
-                    # 縦のスワップ([i,j]<->[i+1,j])
-                    swap_board(current_board, current_map, [i, j], [i+1, j])
+                        score = self.env.score(current_map, score_num)
+                        if score > max_score:
+                            swap_list = [[[i, j], [i, j+1]]]
+                            max_score = score
+                        # elif score == max_score:
+                        #    swap_list.append([[i, j], [i, j+1]])
 
-                    score = self.env.score(current_map, score_num)
-                    if score > max_score:
-                        swap_list = [[[i, j], [i+1, j]]]
-                        max_score = score
-                    elif score == max_score:
-                        swap_list.append([[i, j], [i+1, j]])
+                        swap_board(current_board, current_map,
+                                   [i, j], [i, j+1])
 
-                    swap_board(current_board, current_map, [i, j], [i+1, j])
+                for i in range(2):
+                    for j in range(11):
+                        # 縦のスワップ([i,j]<->[i+1,j])
+                        swap_board(current_board, current_map,
+                                   [i, j], [i+1, j])
 
-            if len(swap_list) != 0:
-                swap = random.choice(swap_list)
-                ij, ij_ = swap[0], swap[1]
-                swap_board(current_board, current_map, ij, ij_)
-                current_score = max_score
-            else:
-                break
+                        score = self.env.score(current_map, score_num)
+                        if score > max_score:
+                            swap_list = [[[i, j], [i+1, j]]]
+                            max_score = score
+                        # elif score == max_score:
+                        #   swap_list.append([[i, j], [i+1, j]])
 
-            if count % 10 == 0:
-                print(count, current_score)
-            now = time.time()
+                        swap_board(current_board, current_map,
+                                   [i, j], [i+1, j])
 
-        print("展開数:", count)
+                if len(swap_list) != 0:
+                    swap = random.choice(swap_list)
+                    ij, ij_ = swap[0], swap[1]
+                    swap_board(current_board, current_map, ij, ij_)
+                    current_score = max_score
+
+                else:
+                    break
+
+                if count % 10 == 0:
+                    print(count, current_score)
+                now = time.time()
+
+            count_sum += count
+
+            print("探索"+str(k+1)+"回目結果")
+            pprint.pprint(current_board)
+            print("スコア")
+            print(current_score, end='\n\n')
+            if current_score > best_score:
+                best_score = current_score
+                best_map = current_map  # copyしないでも多分大丈夫
+                best_board = current_board  # copyしないでも多分大丈夫
+
+            self.env.initializeBoard('random')
+
         if now - start > etime:
             print("time over")
         else:
-            print(now-start)
-        return current_board, current_score
+            print("探索終了")
+            print(now-start, "[s]")
+        print("展開数:", count_sum)
+        return best_board, best_score
