@@ -1,5 +1,5 @@
 from Environment import Environment
-from Model import GradientDescent, MountainClimbing, A_star
+from Model import SimulatedAnnealing, MountainClimbing, A_star
 import argparse
 import pprint
 
@@ -8,7 +8,7 @@ def main(**kwargs):
     env = Environment(kwargs['setting'])
 
     if(kwargs['model'] == '1'):
-        model = GradientDescent(env)
+        model = SimulatedAnnealing(env)
     elif(kwargs['model'] == '2'):
         model = MountainClimbing(env)
     elif(kwargs['model'] == '3'):
@@ -16,9 +16,6 @@ def main(**kwargs):
     else:
         print('No model like '+kwargs['model'])
         return
-
-    # qwertyを目標状態として探索
-    # model.search()
 
     # 初期状態から探索
     best_board, best_score = model.search(kwargs['executiontime'])
