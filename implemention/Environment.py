@@ -25,7 +25,7 @@ class Environment:
         # 評価用の文字列
         texts = glob.glob(os.path.join("text", "*.txt"))
         for filepath in texts:
-            text = open(filepath)
+            text = open(filepath)  # あとでlineを配列に変える
         self.line = text.read()
         self.line = self.line.lower()
         print("評価文字列")
@@ -57,18 +57,19 @@ class Environment:
             for j in range(11):
                 self.board[i, j] = key[11*i+j]
 
-    def score(self, board_map):  # スコア関数(勾配降下用、単語の連続した文字の距離の和)
+    def score(self, board_map, num):  # スコア関数(勾配降下用、単語の連続した文字の距離の和)
         score = 0
-        for i in range(1, len(self.line)):
-            a, b = self.table[ord(self.line[i])],\
-                self.table[ord(self.line[i-1])]
-            score += abs(board_map[a, 0]-board_map[b, 0])**2
-            score += abs(board_map[a, 1]-board_map[b, 1])**2
-        return score/len(self.line)
-
-    def score1(self, board_map):  # デバッグ用
-        self.count += 1
-        return self.count
+        if(num == 1):
+            for i in range(1, len(self.line)):
+                a, b = self.table[ord(self.line[i])],\
+                    self.table[ord(self.line[i-1])]
+                score += abs(board_map[a, 0]-board_map[b, 0])**2
+                score += abs(board_map[a, 1]-board_map[b, 1])**2
+            score /= len(self.line)
+        elif(num == 2):  # デバッグ用
+            self.score += 1
+            score = self.score
+        return score
 
     def heuristic(self, board):  # ヒューリステック関数(A*用、qwertyとの誤差)
         score = 0

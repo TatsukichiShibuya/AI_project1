@@ -1,27 +1,37 @@
 from Environment import Environment
-from Model import SimulatedAnnealing, MountainClimbing, A_star
+from Model import SimulatedAnnealing, MountainClimbing, board2map
 import argparse
 import pprint
 
 
 def main(**kwargs):
-    env = Environment(kwargs['setting'])
 
-    if(kwargs['model'] == '1'):
-        model = SimulatedAnnealing(env)
-    elif(kwargs['model'] == '2'):
-        model = MountainClimbing(env)
-    elif(kwargs['model'] == '3'):
-        model = A_star(env)
+    if(kwargs['model'] in ['1', '2']):  # 探索
+        env = Environment(kwargs['setting'])
+        if(kwargs['model'] == '1'):  # 焼き鈍し法
+            model = SimulatedAnnealing(env)
+        elif(kwargs['model'] == '2'):  # 山登り法
+            model = MountainClimbing(env)
+
+        # 初期状態から探索
+        best_board, best_score = model.search(
+            kwargs['executiontime'],
+            int(kwargs['setting'][1],
+                int(kwargs['setting'][2])))
+        print("最終配列")
+        pprint.pprint(best_board)
+        print("スコア")
+        print(best_score)
+
+    elif(kwargs['model'] == '3'):  # 盤面の評価のみ
+        env = Environment(kwargs['setting'])
+        print("評価配列")
+        pprint.pprint(env.board)
+        print("スコア")
+        print(env.score(board2map(env.board), int(kwargs['setting'][1])))
+
     else:
         print('No model like '+kwargs['model'])
-        return
-
-    # 初期状態から探索
-    best_board, best_score = model.search(kwargs['executiontime'])
-    print("最終配列")
-    pprint.pprint(best_board)
-    print(best_score)
 
 
 if(__name__ == '__main__'):
@@ -34,7 +44,7 @@ if(__name__ == '__main__'):
     )
     parser.add_argument(
         '-s', '--setting', type=str, nargs='+',
-        help='mode(=randomとか)を指定'
+        help='初期化配列(random,qwerty) スコア種類(1,2) [m=1]温度種類(1,2) [m=2]探索回数(1-10)'
     )
     FLAGS = vars(parser.parse_args())
     main(**FLAGS)
