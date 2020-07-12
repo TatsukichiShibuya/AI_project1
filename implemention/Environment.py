@@ -72,18 +72,3 @@ class Environment:
             self.score += 1
             score = self.score
         return score
-
-    def heuristic(self, board):  # ヒューリステック関数(A*用、qwertyとの誤差)
-        score = 0
-        for val in range(33):
-            bx = by = qx = qy = 0
-            for i in range(3):
-                for j in range(11):
-                    if board[i, j] == val:
-                        bx, by = i, j
-            for i in range(3):
-                for j in range(11):
-                    if self.qwerty[i, j] == val:
-                        qx, qy = i, j
-            score -= (abs(qx-bx)**2+abs(qy-by)**2)
-        return score

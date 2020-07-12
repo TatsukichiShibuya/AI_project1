@@ -1,6 +1,5 @@
 import numpy as np
 import time
-import pprint
 import random
 import copy
 
@@ -183,14 +182,3 @@ class MountainClimbing:
         else:
             print(now-start)
         return current_board, current_score
-
-
-class A_star:
-    def __init__(self, env):
-        self.env = env
-
-    def search(self):
-        goal = [[16, 22, 4, 17, 19, 24, 20, 8, 14, 15, 28],
-                [0, 18, 3, 5, 6, 7, 9, 10, 11, 31, 32],
-                [26, 25, 23, 2, 21, 1, 13, 12, 29, 30, 27]]
-        pprint.pprint(goal)
