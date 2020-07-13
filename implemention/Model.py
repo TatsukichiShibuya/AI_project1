@@ -28,7 +28,7 @@ class SimulatedAnnealing:
     def __init__(self, env):
         self.env = env
 
-    def t(self, t, time, etime, temp_num):  # temperature function
+    def t(self, t, time, temp_num):  # temperature function
         res = 0
         if temp_num == 1:  # linear
             res = max((1500000-49.98*time)/30000, 3.02-0.02*time/200)
@@ -62,7 +62,7 @@ class SimulatedAnnealing:
         t = 50
         while(t > 1e-2 and now-start < etime):
             count += 1
-            t = self.t(t, count, etime, temp_num)
+            t = self.t(t, count, temp_num)
 
             # # # # # swap processing # # # # #
             flag = random.random() < 27/(20+27)

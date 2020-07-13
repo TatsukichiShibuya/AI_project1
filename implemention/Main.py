@@ -15,7 +15,7 @@ def main(**kwargs):
             assert arg in [1, 2], "wrong setting"
         elif kwargs['model'] == '2':  # MountainClimbing
             model = MountainClimbing(env)
-            assert 1 <= arg <= 10, "wrong setting"
+            assert 1 <= arg <= 20, "wrong setting"
 
         # execute search
         best_board, best_score = model.search(
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-s', '--setting', type=str, nargs='+',
-        help='初期配列(random or qwerty) [if m=1]温度種類(1 or 2) [if m=2]探索回数(1-10)'
+        help='初期配列(random or qwerty) [if m=1]温度種類(1 or 2) [if m=2]探索回数(1-20)'
     )
     FLAGS = vars(parser.parse_args())
     main(**FLAGS)
