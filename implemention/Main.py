@@ -6,30 +6,30 @@ import pprint
 
 def main(**kwargs):
 
-    if kwargs['model'] in ['1', '2']:  # 探索
+    if kwargs['model'] in ['1', '2']:  # search
         env = Environment(kwargs['setting'][0])
         arg = int(kwargs['setting'][1])
 
-        if kwargs['model'] == '1':  # 焼き鈍し法
+        if kwargs['model'] == '1':  # SimulatedAnnealing
             model = SimulatedAnnealing(env)
             assert arg in [1, 2], "wrong setting"
-        elif kwargs['model'] == '2':  # 山登り法
+        elif kwargs['model'] == '2':  # MountainClimbing
             model = MountainClimbing(env)
             assert 1 <= arg <= 10, "wrong setting"
 
-        # 初期状態から探索
+        # execute search
         best_board, best_score = model.search(
             kwargs['executiontime'], arg)
-        print("最終配列")
+        print("Final Board")
         pprint.pprint(best_board)
-        print("スコア")
+        print("Score")
         print(best_score)
 
-    elif kwargs['model'] == '3':  # 盤面の評価のみ
+    elif kwargs['model'] == '3':  # only evaluate board
         env = Environment(kwargs['setting'][0])
-        print("評価配列")
+        print("Borad to Evaluate")
         pprint.pprint(env.board)
-        print("スコア")
+        print("Score")
         print(env.score(board2map(env.board)))
 
     else:
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-s', '--setting', type=str, nargs='+',
-        help='初期化配列(random,qwerty) [m=1]温度種類(1,2) [m=2]探索回数(1-10)'
+        help='初期配列(random or qwerty) [if m=1]温度種類(1 or 2) [if m=2]探索回数(1-10)'
     )
     FLAGS = vars(parser.parse_args())
     main(**FLAGS)
