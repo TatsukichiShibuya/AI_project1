@@ -17,9 +17,9 @@ def swap_board(board, board_map,  ij, ij_):
 
 
 def board2map(board):
-    res = np.zeros((33, 2))
+    res = np.zeros((30, 2))
     for i in range(3):
-        for j in range(11):
+        for j in range(10):
             res[board[i, j]] = [i, j]
     return res
 
@@ -28,19 +28,21 @@ class SimulatedAnnealing:
     def __init__(self, env):
         self.env = env
 
-    def t(self, time, etime, temp_num):
+    def t(self, t, time, etime, temp_num):
         res = 0
         if temp_num == 1:  # 線形
-            res = max(200-time/20, 0.05)
-        elif temp_num == 2:  # 対数
-            pass
+            # res = max(200-time/20, 0.05)
+            res = max((1500000-49.98*time)/30000, 3.02-0.02*time/200)
+        elif temp_num == 2:  # 指数
+            a = 0.99973923
+            res = t*a
         return res
 
-    def swap_prob(self, dif_score, time, etime, temp_num):  # prob = exp(-E/t)
-        prob = 1/np.exp(dif_score/self.t(time, etime, temp_num))
+    def swap_prob(self, dif_score, t):  # prob = exp(-E/t)
+        prob = 1/np.exp(dif_score/t)
         return prob
 
-    def search(self, exec_time, score_num, temp_num):
+    def search(self, exec_time, temp_num):
         etime = exec_time  # 実行時間(この時間回す)
         start = time.time()
         now = start
@@ -48,37 +50,39 @@ class SimulatedAnnealing:
         # 全ての回中最高のスコア
         best_board = self.env.board.copy()
         best_map = board2map(best_board)
-        best_score = self.env.score(best_map, score_num)
+        best_score = self.env.score(best_map)
 
         # current_score:whileの各回でのはじめのスコア
         current_board = self.env.board.copy()
         current_map = board2map(current_board)
-        current_score = self.env.score(current_map, score_num)
+        current_score = self.env.score(current_map)
 
         count = 0
+        t = 50
         dif = [0]*30
-        while(self.t(count, etime, temp_num) > 1e-5):
+        while(t > 1e-2 and now-start < etime):
             count += 1
+            t = self.t(t, count, etime, temp_num)
 
             # # # # # スワップ処理 # # # # #
 
-            flag = random.random() > 0.5
+            flag = random.random() < 27/(20+27)
             i = j = 0
             if flag:  # 横向きのスワップ
-                i, j = random.randint(0, 2), random.randint(0, 9)
+                i, j = random.randint(0, 2), random.randint(0, 8)
                 swap_board(current_board, current_map, [i, j], [i, j+1])
-                score = self.env.score(current_map, score_num)
+                score = self.env.score(current_map)
                 swap_board(current_board, current_map, [i, j], [i, j+1])
             else:  # 縦向きのスワップ
-                i, j = random.randint(0, 1), random.randint(0, 10)
+                i, j = random.randint(0, 1), random.randint(0, 9)
                 swap_board(current_board, current_map, [i, j], [i+1, j])
-                score = self.env.score(current_map, score_num)
+                score = self.env.score(current_map)
                 swap_board(current_board, current_map, [i, j], [i+1, j])
 
             if current_score > score:
-                dif[int(min((current_score - score), 29))] += 1
+                dif[int(min((current_score - score)*20, 29))] += 1
 
-            prob = self.swap_prob(current_score-score, count, etime, temp_num)\
+            prob = self.swap_prob(current_score-score, t)\
                 if current_score > score else 1
 
             swap_or_not = prob >= random.random()
@@ -102,16 +106,18 @@ class SimulatedAnnealing:
                 a = dif/np.sum(dif)
                 exp = 0
                 for i in range(len(dif)):
-                    exp += 100*i*a[i]
-                print(exp)
+                    exp += (i+1)*a[i]
+                print(exp/20)
+                print(dif)
 
             now = time.time()
 
-        print("展開数:", count)
         if now - start > etime:
             print("time over")
         else:
+            print("探索終了")
             print(now-start)
+        print("展開数:", count)
         return best_board, best_score
 
 
@@ -119,7 +125,7 @@ class MountainClimbing:
     def __init__(self, env):
         self.env = env
 
-    def search(self, exec_time, score_num, exec_num):
+    def search(self, exec_time, exec_num):
         etime = exec_time  # 実行限界時間(この時間内で打ち切る)
         start = time.time()
         now = start
@@ -127,7 +133,7 @@ class MountainClimbing:
         # 全ての回中最高のスコア
         best_board = self.env.board.copy()
         best_map = board2map(best_board)
-        best_score = self.env.score(best_map, score_num)
+        best_score = self.env.score(best_map)
 
         count_sum = 0
 
@@ -136,7 +142,7 @@ class MountainClimbing:
             count = 0
             current_board = self.env.board.copy()
             current_map = board2map(current_board)
-            current_score = self.env.score(current_map, score_num)
+            current_score = self.env.score(current_map)
             print("探索"+str(k+1)+"回目")
             pprint.pprint(current_board)
 
@@ -147,12 +153,12 @@ class MountainClimbing:
                 # max_score:各スワップで最も良いスコア(はじめはcurrent_score)
                 max_score = current_score
                 for i in range(3):
-                    for j in range(10):
+                    for j in range(9):
                         # 横のスワップ([i,j]<->[i,j+1])
                         swap_board(current_board, current_map,
                                    [i, j], [i, j+1])
 
-                        score = self.env.score(current_map, score_num)
+                        score = self.env.score(current_map)
                         if score > max_score:
                             swap_list = [[[i, j], [i, j+1]]]
                             max_score = score
@@ -163,12 +169,12 @@ class MountainClimbing:
                                    [i, j], [i, j+1])
 
                 for i in range(2):
-                    for j in range(11):
+                    for j in range(10):
                         # 縦のスワップ([i,j]<->[i+1,j])
                         swap_board(current_board, current_map,
                                    [i, j], [i+1, j])
 
-                        score = self.env.score(current_map, score_num)
+                        score = self.env.score(current_map)
                         if score > max_score:
                             swap_list = [[[i, j], [i+1, j]]]
                             max_score = score
@@ -209,5 +215,5 @@ class MountainClimbing:
         else:
             print("探索終了")
             print(now-start, "[s]")
-        print("展開数:", count_sum)
+        print("展開数:", count_sum*47)
         return best_board, best_score

@@ -6,18 +6,20 @@ import os
 
 
 class Environment:
-
     def __init__(self, initial):
-        self.count = 1  # デバッグ用
-
         # qwerty配列
-        self.qwerty = np.array([[16, 22, 4, 17, 19, 24, 20, 8, 14, 15, 28],
-                                [0, 18, 3, 5, 6, 7, 9, 10, 11, 31, 32],
-                                [26, 25, 23, 2, 21, 1, 13, 12, 29, 30, 27]],
+        self.qwerty = np.array([[16, 22, 4, 17, 19, 24, 20, 8, 14, 15],
+                                [0, 18, 3, 5, 6, 7, 9, 10, 11, 26],
+                                [25, 23, 2, 21, 1, 13, 12, 27, 28, 29]],
+                               dtype=np.uint8)
+        # dvorak配列
+        self.dvorak = np.array([[26, 27, 28, 15, 24, 5, 6, 2, 17, 11],
+                                [0, 14, 4, 20, 8, 3, 7, 19, 13, 18],
+                                [29, 16, 9, 10, 23, 1, 12, 22, 21, 25]],
                                dtype=np.uint8)
 
         # 初期化用の配列作成
-        self.board = np.zeros((3, 11), dtype=np.uint8)
+        self.board = np.zeros((3, 10), dtype=np.uint8)
         self.initializeBoard(initial)
         print("初期配列")
         pprint.pprint(self.board)
@@ -40,35 +42,33 @@ class Environment:
             num += 1
 
     def initializeBoard(self,  initial):
-
         # 初期化の種類
         if initial == 'random':
-            key = random.sample(list(np.arange(0, 33)), 33)
+            key = random.sample(list(np.arange(0, 30)), 30)
 
         elif initial == 'qwerty':
-            key = np.reshape(self.qwerty, (33,))
-
+            key = np.reshape(self.qwerty, (30,))
+        elif initial == 'dvorak':
+            key = np.reshape(self.dvorak, (30,))
         else:
             print(initial+' is invalid, initialize with "random"')
-            key = random.sample(list(np.arange(1, 34)), 33)
+            key = random.sample(list(np.arange(0, 30)), 30)
 
         # boardの初期化
         for i in range(3):
-            for j in range(11):
-                self.board[i, j] = key[11*i+j]
+            for j in range(10):
+                self.board[i, j] = key[10*i+j]
 
-    def score(self, board_map, num):  # スコア関数(勾配降下用、単語の連続した文字の距離の和)
+    def score(self, board_map):  # スコア関数(勾配降下用、単語の連続した文字の距離の和)
         score = 0
-        if num == 1:
-            for i in range(1, len(self.line)):
-                a, b = self.table[ord(self.line[i])],\
-                    self.table[ord(self.line[i-1])]
-                score += abs(board_map[a, 0]-board_map[b, 0])**2
-                score += abs(board_map[a, 1]-board_map[b, 1])**2
-            score /= len(self.line)
-        elif num == 2:
-            pass
-        elif num == 3:  # デバッグ用
-            self.score += 1
-            score = self.score
+
+        for i in range(1, len(self.line)):
+            a, b = self.table[ord(self.line[i])],\
+                self.table[ord(self.line[i-1])]
+            # 横距離の和(大きい方が楽)
+            score += abs(board_map[a, 1]-board_map[b, 1])**2
+            # 縦位置の罰則(二段目が楽)
+            score -= (abs(board_map[a, 0]-1)*3)**2
+
+        score /= len(self.line)
         return score
