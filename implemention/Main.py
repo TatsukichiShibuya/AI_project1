@@ -1,7 +1,6 @@
-from Environment import Environment
+from Environment import Environment, showBoard
 from Model import SimulatedAnnealing, MountainClimbing, board2map
 import argparse
-import pprint
 
 
 def main(**kwargs):
@@ -21,14 +20,14 @@ def main(**kwargs):
         best_board, best_score = model.search(
             kwargs['executiontime'], arg)
         print("Final Board")
-        pprint.pprint(best_board)
+        showBoard(best_board)
         print("Score")
         print(best_score)
 
     elif kwargs['model'] == '3':  # only evaluate board
         env = Environment(kwargs['setting'][0])
         print("Borad to Evaluate")
-        pprint.pprint(env.board)
+        showBoard(env.board)
         print("Score")
         print(env.score(board2map(env.board)))
 

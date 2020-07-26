@@ -2,7 +2,7 @@ import numpy as np
 import time
 import random
 import copy
-import pprint
+from Environment import showBoard
 
 
 def swapBoard(board, board_map,  ij, ij_):
@@ -134,7 +134,7 @@ class MountainClimbing:
             current_map = board2map(current_board)
             current_score = self.env.score(current_map)
             print("Search-"+str(k+1))
-            pprint.pprint(current_board)
+            showBoard(current_board)
 
             while(now-start < etime):
                 count += 1
@@ -186,7 +186,7 @@ class MountainClimbing:
             count_sum += count
 
             print("Search-"+str(k+1)+"-Result")
-            pprint.pprint(current_board)
+            showBoard(current_board)
             print("Score")
             print(current_score, end='\n\n')
             if current_score > best_score:

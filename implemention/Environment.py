@@ -1,7 +1,16 @@
 import numpy as np
 import random
-import pprint
 import os
+
+
+def showBoard(board):
+    table = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+             'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+             'u', 'v', 'w', 'x', 'y', 'z', "'", ",", ".", " "]
+    for line in board:
+        for c in line:
+            print(table[c], end=' ')
+        print()
 
 
 class Environment:
@@ -21,7 +30,7 @@ class Environment:
         self.board = np.zeros((3, 10), dtype=np.uint8)
         self.initializeBoard(initial)
         print("Initial Board")
-        pprint.pprint(self.board)
+        showBoard(self.board)
         print()
 
         # string for evaluating
