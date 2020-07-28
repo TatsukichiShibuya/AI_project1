@@ -26,7 +26,7 @@ def main(**kwargs):
 
     elif kwargs['model'] == '3':  # only evaluate board
         env = Environment(kwargs['setting'][0])
-        print("Borad to Evaluate")
+        print("Board to Evaluate")
         showBoard(env.board)
         print("Score")
         print(env.score(board2map(env.board)))
